@@ -1,11 +1,7 @@
 package com.gc2project.ecommerce.controller;
 
-import com.gc2project.ecommerce.model.Category;
-import com.gc2project.ecommerce.service.CategoryService;
-
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,35 +12,49 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.gc2project.ecommerce.model.Category;
+import com.gc2project.ecommerce.service.CategoryService;
+
 @RestController
 public class CategoryController {
 	
-	@Autowired
 	private CategoryService categoryService;
-		
-//	public CategoryController(CategoryService categoryService) {
-//		super();
-//		this.categoryService = categoryService;
-//	}
-
-	@GetMapping("/api/public/categories")
-	public List<Category> getAllCategories(){
-		return categoryService.getAllCategories();
+	
+	
+	public CategoryController(CategoryService categoryService) {
+		super();
+		this.categoryService = categoryService;
 	}
 
-	@PostMapping("api/admin/category")
-	public String createCategory(@RequestBody Category category) {
+	//Fetching all categories - GET API
+	
+	@GetMapping("/api/public/categories")
+	public ResponseEntity<List<Category>> getAllCategories(){
+		//return categoryService.getAllCategories();
+		List<Category> categories = categoryService.getAllCategories();
+		return new ResponseEntity<>(categories, HttpStatus.OK);
+
+	}
+	
+	//Add new category - POST API
+	
+	@PostMapping("/api/admin/category")
+	public ResponseEntity<String> createCategory(@RequestBody Category category) {
 		categoryService.createCategory(category);
-		return "Category added successfully!";
+		//return "Category created successfully!";
+		return new ResponseEntity<>("Category created successfully", HttpStatus.CREATED);
 	}
 	
 	@DeleteMapping("/api/admin/category/{categoryId}")
 	public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
 		try {
-			String status = categoryService.deleteCategory(categoryId);
-			return new ResponseEntity<>(status,HttpStatus.OK);
-		}catch(ResponseStatusException e) {
-			return new ResponseEntity<>(e.getReason(),e.getStatusCode());
+		String status = categoryService.deleteCategory(categoryId);
+//		return new ResponseEntity<>(status,HttpStatus.OK);
+//		return ResponseEntity.ok(status);
+		return ResponseEntity.status(HttpStatus.OK).body(status);
+		} catch (ResponseStatusException e) {
+			return new ResponseEntity<>(e.getReason(), e.getStatusCode());
 		}
 	}
+	
 }
