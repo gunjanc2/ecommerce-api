@@ -4,46 +4,45 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.gc2project.ecommerce.model.Category;
+import com.gc2project.ecommerce.repositories.CategoryRepository;
 
 @Service
 public class CategoryServiceImpl implements CategoryService{
 	
 	//Add unimplemented methods
 	
-	private List<Category> categories = new ArrayList<>();
+	//private List<Category> categories = new ArrayList<>();
 	
 	private Long nextId = 1L;
+	
+	@Autowired
+	private CategoryRepository categoryRepo;
 
 	@Override
 	public List<Category> getAllCategories() {
-		return categories;
+		return categoryRepo.findAll();
 	}
 
 	@Override
 	public void createCategory(Category category) {
 		category.setCategoryId(nextId++);
-		categories.add(category);
+		categoryRepo.save(category);
 		
 	}
 
 	@Override
 	public String deleteCategory(Long categoryId) {
-		Category category = categories.stream()
-				.filter(c -> c.getCategoryId().equals(categoryId))
-				.findFirst()
-//				.get()
-//				.orElse(null);
+		
+		Category deleteCategory = categoryRepo.findById(categoryId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found Exception"));
 		
-//		if(category == null)
-//			return "Category not found!";
-		
-		categories.remove(category);
+		categoryRepo.delete(deleteCategory);
 		
 		return "Category with category ID: "+categoryId+" deleted successfully!";
 	}
@@ -51,21 +50,15 @@ public class CategoryServiceImpl implements CategoryService{
 	@Override
 	public Category updateCategory(Category category, Long categoryId) {
 		
-		Optional<Category> optCategory = categories.stream()
-				.filter(c -> c.getCategoryId().equals(categoryId))
-				.findFirst();
+		Category savedCategory = categoryRepo.findById(categoryId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found Exception"));
 		
-		//We can make use of .get() as well above but if the category is not found, we will get an error
-		//To avoid exception, we applied below if block
+		//If category exists, it will be assigned to savedCategory
+
+		category.setCategoryId(categoryId);
+		savedCategory=categoryRepo.save(category);
 		
-		if(optCategory.isPresent()) {
-			Category existingCategory = optCategory.get();
-			existingCategory.setCategoryName(category.getCategoryName());
-			return existingCategory;
-		} else {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found Exception");
-		}
-		
+		return savedCategory;
 	}
 
 }
