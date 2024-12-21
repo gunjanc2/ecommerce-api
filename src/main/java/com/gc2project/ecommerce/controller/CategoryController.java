@@ -10,13 +10,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.gc2project.ecommerce.model.Category;
 import com.gc2project.ecommerce.service.CategoryService;
 
+import jakarta.validation.Valid;
+
 @RestController
+@RequestMapping("/api")
 public class CategoryController {
 	
 	private CategoryService categoryService;
@@ -29,7 +34,8 @@ public class CategoryController {
 
 	//Fetching all categories - GET API
 	
-	@GetMapping("/api/public/categories")
+	//@GetMapping("/public/categories")
+	@RequestMapping(value="/public/categories", method=RequestMethod.GET)
 	public ResponseEntity<List<Category>> getAllCategories(){
 		//return categoryService.getAllCategories();
 		List<Category> categories = categoryService.getAllCategories();
@@ -39,14 +45,18 @@ public class CategoryController {
 	
 	//Add new category - POST API
 	
-	@PostMapping("/api/admin/category")
-	public ResponseEntity<String> createCategory(@RequestBody Category category) {
+	//@PostMapping("/admin/category")
+	@RequestMapping(value="/admin/category", method=RequestMethod.POST)
+	public ResponseEntity<String> createCategory(@Valid @RequestBody Category category) {
 		categoryService.createCategory(category);
 		//return "Category created successfully!";
 		return new ResponseEntity<>("Category created successfully", HttpStatus.CREATED);
 	}
 	
-	@DeleteMapping("/api/admin/category/{categoryId}")
+	//Delete a category with categoryId
+	
+	//@DeleteMapping("/admin/category/{categoryId}")
+	@RequestMapping(value="/admin/category/{categoryId}", method=RequestMethod.DELETE)
 	public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
 		try {
 		String status = categoryService.deleteCategory(categoryId);
@@ -58,7 +68,10 @@ public class CategoryController {
 		}
 	}
 	
-	@PutMapping("/api/admin/category/{categoryId}")
+	//Update category with categoryId
+	
+	//@PutMapping("/admin/category/{categoryId}")
+	@RequestMapping(value="/admin/category/{categoryId}", method=RequestMethod.PUT)
 	public ResponseEntity<String> updateCategory(@RequestBody Category category,
 												@PathVariable Long categoryId){
 		try {
@@ -69,4 +82,5 @@ public class CategoryController {
 			return new ResponseEntity<>(e.getReason(),e.getStatusCode());
 		}
 	}
+	
 }
