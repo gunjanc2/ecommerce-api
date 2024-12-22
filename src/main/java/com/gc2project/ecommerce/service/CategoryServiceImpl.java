@@ -9,8 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.gc2project.ecommerce.exceptions.ResourceNotFoundException;
 import com.gc2project.ecommerce.model.Category;
 import com.gc2project.ecommerce.repositories.CategoryRepository;
+
 
 @Service
 public class CategoryServiceImpl implements CategoryService{
@@ -40,7 +42,8 @@ public class CategoryServiceImpl implements CategoryService{
 	public String deleteCategory(Long categoryId) {
 		
 		Category deleteCategory = categoryRepo.findById(categoryId)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found Exception"));
+				//.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found Exception"));
+				.orElseThrow(() -> new ResourceNotFoundException("Category","category ID",categoryId));
 		
 		categoryRepo.delete(deleteCategory);
 		
@@ -51,7 +54,8 @@ public class CategoryServiceImpl implements CategoryService{
 	public Category updateCategory(Category category, Long categoryId) {
 		
 		Category savedCategory = categoryRepo.findById(categoryId)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found Exception"));
+				//.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource Not Found Exception"));
+		.orElseThrow(() -> new ResourceNotFoundException("Category","category ID",categoryId));
 		
 		//If category exists, it will be assigned to savedCategory
 
