@@ -29,6 +29,9 @@ public class CategoryServiceImpl implements CategoryService{
 
 	@Override
 	public List<Category> getAllCategories() {
+		if (categoryRepo.count()==0){
+			throw new APIException("No categories present yet!");
+		}
 		return categoryRepo.findAll();
 	}
 
