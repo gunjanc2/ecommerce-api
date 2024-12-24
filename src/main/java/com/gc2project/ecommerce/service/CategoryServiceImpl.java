@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.gc2project.ecommerce.exceptions.APIException;
 import com.gc2project.ecommerce.exceptions.ResourceNotFoundException;
 import com.gc2project.ecommerce.model.Category;
 import com.gc2project.ecommerce.repositories.CategoryRepository;
@@ -33,6 +34,10 @@ public class CategoryServiceImpl implements CategoryService{
 
 	@Override
 	public void createCategory(Category category) {
+		Category savedCategory = categoryRepo.findByCategoryName(category.getCategoryName());
+		if (savedCategory != null) {
+			throw new APIException("Category with category name: "+category.getCategoryName()+" already exists!");
+		}
 		category.setCategoryId(nextId++);
 		categoryRepo.save(category);
 		
